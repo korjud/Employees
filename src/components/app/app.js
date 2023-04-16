@@ -12,11 +12,34 @@ class App extends Component {
         super(props);
         this.state = {
             data: [
-                {name: 'John C.', salary: 800, increase: false, id: 1},
-                {name: 'Alex M.', salary: 3000, increase: true, id: 2},
-                {name: 'Carl W.', salary: 5000, increase: false, id: 3}
+                {name: 'John C.', salary: 800, increase: false, rise: true, id: 1},
+                {name: 'Alex M.', salary: 3000, increase: true, rise: false, id: 2},
+                {name: 'Carl W.', salary: 5000, increase: false, rise: false, id: 3}
             ]
         }
+        this.maxId = 4;
+    }
+
+    onToggleIncrease = (id) => {
+        this.setState (({data}) => ({
+            data: data.map(item => {
+                if (item.id === id) {
+                    return {...item, increase: !item.increase}
+                }
+                return item;
+            })
+        }))
+    }
+
+    onToggleRise = (id) => {
+        this.setState (({data}) => ({
+            data: data.map(item => {
+                if (item.id === id) {
+                    return {...item, rise: !item.rise}
+                }
+                return item;
+            })
+        }))
     }
 
     deleteItem = (id) => {
@@ -27,23 +50,43 @@ class App extends Component {
         })
     }
 
-render () {
-    return (
-      <div className="app">
-          <AppInfo />
+    addItem = (name, salary) => {
+        const newItem = {
+          name,
+          salary,
+          increase: false,
+          rise: false,
+          id: this.maxId++
+        }
+        this.setState(({data}) => {
+            const newArr = [...data, newItem];
+            return {
+                data: newArr
+            }
+        })
+    }
 
-          <div className="search-panel">
-              <SearchPanel/>
-              <AppFilter/>
+    render () {
+        const employees = this.state.data.length;
+        const increased = this.state.data.filter(item => item.increase).length;
+        return (
+          <div className="app">
+              <AppInfo employees={employees}
+                       increased={increased}/>
+
+              <div className="search-panel">
+                  <SearchPanel/>
+                  <AppFilter/>
+              </div>
+              
+              <EmployeesList data={this.state.data}
+                            onToggleIncrease={this.onToggleIncrease}
+                            onToggleRise={this.onToggleRise}
+                            onDelete={this.deleteItem}/>
+              <EmployeesAddForm onAdd={this.addItem}/>
           </div>
-          
-          <EmployeesList data={this.state.data}
-                         onDelete={this.deleteItem}/>
-          <EmployeesAddForm/>
-      </div>
-    )
-}
-   
+        )
+    }
 }
 
 export default App;
